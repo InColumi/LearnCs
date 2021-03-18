@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace LearnCs
@@ -86,16 +87,23 @@ namespace LearnCs
             }
 
             lines.Sort();
-            foreach (var line in lines)
+            int linesCount = lines.Count;
+            for (int i = 0; i < linesCount; i++)
+            {
+                Console.WriteLine($"({i + 1}/{linesCount}) {lines[i]}");
+            }
+
+            for (int i = 0; i < linesCount; i++)
             {
                 builder.Append(startSearch);
-                builder.Append(GetNewFormat(line, ' ', "%20"));
+                builder.Append(GetNewFormat(lines[i], ' ', "%20"));
                 builder.Append("%20");
                 builder.Append(nameCar);
                 builderInString = builder.ToString();
-                Console.WriteLine(builderInString);
+                Console.WriteLine($"({i + 1}/{linesCount}) {builderInString}");
                 Process.Start(builderInString);
                 builder.Clear();
+                Thread.Sleep(100);
             }
             Console.WriteLine("Search complited.");
         }
