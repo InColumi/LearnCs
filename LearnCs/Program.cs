@@ -1,363 +1,211 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace MyBookstore
+namespace LearnCs
 {
-    class Book
-    {
-        public string Name { get; private set; }
-        public int Serial { get; private set; }
-        public bool Status { get; private set; } //false means available
-
-        public Book(string name, int serial)
-        {
-            //to do
-            Name = name;
-            Serial = serial;
-        }
-        //public bool IsAvailable()
-        //{
-        //    //to do
-        //    //should return true if a book is available
-
-        //    bool bAvailale = true;
-
-        //    if (bAvailale)
-        //    {
-        //        Status = false;
-        //    }
-        //    return Status;
-        //}
-        public void Rent()
-        {
-            if (Status == false)
-            {
-                //A book can be rented if it's rental status is false
-                //Console.WriteLine("A book can be rented");
-                Status = true;
-            }
-            else
-            {
-                //otherwise, the book is not available.
-                //Console.WriteLine("The book is not available");
-            }
-        }
-
-        public void Return()
-        {
-            if (Status == true)
-            {
-                //A book can be returned only if, it was rented before!
-                //How to ace a job interview successfully returned.
-                Status = false;
-            }
-            else
-            {
-                // rent status false means, it is available in the store.
-                // Therefore, you should generate error message if some users tries to return this book.
-                //Console.WriteLine("");
-                throw new Exception("users tries to return this book");
-            }
-        }
-
-        private string GetStatus()
-        {
-            return (Status) ? "Rented" : "Available";
-        }
-        public void ShowInfo()
-        {
-            //Show name of the book, it's serial and rental status.
-            Console.WriteLine($"Book Name: {Name}, Serial: {1}, Status: {GetStatus()}");
-        }
-    }
-
-    class Reader
-    {
-        public string Name { get; set; }
-        public int CountBooksWasRented { get; private set; }
-        private List<Book> _rentedBooks;
-
-        public Reader(string name)
-        {
-            //to do
-            //initialize a reader object
-            Name = name;
-            _rentedBooks = new List<Book>();
-            CountBooksWasRented = _rentedBooks.Count;
-        }
-
-        public void RentABook(Book book)
-        {
-            //to do
-            //user is allowed to rent maximum two books at a time.
-            //issue error message, if users want to rent more than two books.
-            //for (int i = 1; i <= 2; i++)
-            //{
-            //    _rentedBooks.Add(book);
-            //}
-            //if (_rentedBooks.Count > 2)
-            if (_rentedBooks.Count >= 2)
-            {
-                //Sorry! Mahbub, You cannot rent more than two books!
-                Console.Write($"Sorry! + '{Name},' + You cannot rent more than two books");
-            }
-            else
-            {
-                book.Rent();
-                _rentedBooks.Add(book);
-                CountBooksWasRented = _rentedBooks.Count;
-            }
-        }
-
-        public void ReturnABook(Book book)
-        {
-            //to do
-            //return a book, means change book status and remove the book for the readers list.
-            //book.Status = false;
-            book.Return();
-            _rentedBooks.Remove(book);
-            CountBooksWasRented = _rentedBooks.Count;
-        }
-
-        public void ShowInfo()
-        {
-            //to do
-            //show reader's name and the list of books rented by the reader.
-            //Reader David rented following books:
-            //Book Name: Object Oriented Programming, Serial: 2, Status: Rented
-            //Book Name: Programming Fundamentals, Serial: 1, Status: Rented
-
-            Console.WriteLine($"Reader {Name} rented following books:");
-            foreach (var book in _rentedBooks)
-            {
-                book.ShowInfo();
-            }
-        }
-    }
-
-    class BookStore
-    {
-        private List<Book> _books;
-        private List<Reader> _readers;
-
-        public BookStore()
-        {
-            //to do
-            //initialize book store
-            _books = new List<Book>();
-            _readers = new List<Reader>();
-        }
-
-        public void AddAReader(string name)
-        {
-            //add a new reader to the bookstore's reader list.
-            _readers.Add(new Reader(name));
-        }
-
-        public void RemoveAReader(string name)
-        {
-            //to do
-            //remove a reader, therefore, first return all books(if any) rented by the reader then remove the reader.
-            for (int i = 0; i < _readers.Count; i++)
-            {
-                if (_readers[i].Name == name && _readers[i].CountBooksWasRented == 0)
-                {
-                    _readers.Remove(_readers[i]);
-                    return;
-                }
-            }
-        }
-
-        public void AddABook(string name, int serial)
-        {
-            //to do
-            // add a book object to the bookstore's book list.
-            Book newBook = new Book(name, serial);
-            _books.Add(newBook);
-        }
-
-        public void RemoveABook(string name, int serial)
-        {
-            //to do
-            //remove a book from book store. Only allowed if bookstore already have the book 'available'!
-            //Otherwise, issue an error message because the book is already issued by some reader!
-            Book bookForDelete = new Book(name, serial);
-            _books.Remove(bookForDelete);  
-        }
-
-        public void RentABook(string nameReader, string nameBook)
-        {
-            //to do
-            // A book can be rented, if it is available to the store and not already rented to somone else!
-            for (int i = 0; i < _readers.Count; i++)
-            {
-                if (_readers[i].Name == nameReader)
-                {
-                    for (int j = 0; j < _books.Count; j++)
-                    {
-                        if (_books[j].Name == nameBook && _books[j].Status == false)
-                        {
-                            _readers[i].RentABook(_books[j]);
-                            Console.WriteLine($"Book: {nameBook} successfully rented.");
-                            return;
-                        }
-                    }
-                }
-            }
-        }
-
-        public void ReturnABook(string nameReader, string nameBook, int serial)
-        {
-            //A book can be returned by a reader, if he/she actually rented the book.
-            for (int i = 0; i < _readers.Count; i++)
-            {
-                if (_readers[i].Name == nameReader && _readers[i].CountBooksWasRented != 0)
-                {
-                    for (int j = 0; j < _books.Count; j++)
-                    {
-                        if (_books[j].Name == nameBook && _books[j].Serial == serial)
-                        {
-                            _readers[i].ReturnABook(_books[j]);
-                            Console.WriteLine($"Book: {nameBook} successfully returned.");
-                            return;
-                        }
-                    }
-                }
-            }
-        }
-
-        public void ShowInfo()
-        {
-            //to do
-            //show bookstore information
-            //first show all books that are already rented to some readers.
-            //then show all books thar are available to the store.
-            // bs.RentABook("Mahbub", "Object Oriented Programming");
-
-            foreach (var reader in _readers)
-            {
-                reader.ShowInfo();
-            }
-
-            Console.WriteLine("The bookstore have following books available:");
-            foreach (var book in _books)
-            {
-                if (book.Status == false)
-                {
-                    book.ShowInfo();
-                }
-            }
-        }
-    }
-
     class Program
     {
+        class Mountain
+        {
+            private List<int> _numbers;
+            // private List<int> _numbersUp;
+            // private List<int> _numbersDown;
+            private char[,] _matrix;
+            private int _sizePerson;
+            private int _max;
+            private int _min;
+            public Mountain(List<int> numbers)
+            {
+                // _numbersUp = new List<int>();
+                // _numbersDown = new List<int>();
+                _numbers = numbers;
+                //SetNumberUpAndDown();
+                _sizePerson = 3;
+                int sumNumers = GetSum(_numbers);
+                _max = FindMax();
+                _min = FindMin();
+                _matrix = new char[_max + _min + _sizePerson, sumNumers + 3];
+            }
+
+            private int FindMax()
+            {
+                int sum = 0;
+                int max = sum;
+                for (int i = 0; i < _numbers.Count; i++)
+                {
+                    sum += (i % 2 == 0) ? _numbers[i] : -_numbers[i];
+                    if (max < sum)
+                    {
+                        max = sum;
+                    }
+                }
+                return max;
+            }
+
+            private int FindMin()
+            {
+                int sum = 0;
+                int min = sum;
+                for (int i = 0; i < _numbers.Count; i++)
+                {
+                    sum += (i % 2 == 0) ? _numbers[i] : -_numbers[i];
+                    if (min > sum)
+                    {
+                        min = sum;
+                    }
+                }
+                return Math.Abs(min);
+            }
+            public void Calculate()
+            {
+                FilMatrix(' ');
+                bool isUp = true;
+                bool isSit = false;
+                int i = _matrix.GetLength(0) - _min - 1;
+                int j = 0;
+                int iStartPersone = 0;
+                int JStartPersone = 0;
+                for (int k = 0; k < _numbers.Count; k++)
+                {
+                    if (isUp)
+                    {
+                        MoveUp(ref i, ref j, _numbers[k]);
+                        isUp = false;
+                    }
+                    else
+                    {
+                        MoveDown(ref i, ref j, _numbers[k]);
+                        isUp = true;
+                    }
+                    ++j;
+                    if (i == _sizePerson && isSit == false)
+                    {
+                        ++j;
+                        iStartPersone = i - 1;
+                        JStartPersone = j - 1;
+                        isSit = true;
+                    }
+
+                }
+                AddPerson(iStartPersone, JStartPersone);
+            }
+
+            private void AddPerson(int i, int j)
+            {
+                _matrix[i - 1, j] = 'o';
+                _matrix[i, j] = '|';
+                _matrix[i, j - 1] = '/';
+                _matrix[i, j + 1] = '\\';
+                _matrix[i + 1, j - 1] = '<';
+                _matrix[i + 1, j] = ' ';
+                _matrix[i + 1, j + 1] = '>';
+            }
+
+            private List<int> GetNumber()
+            {
+                string numbersInLine = Console.ReadLine();
+                string[] numbersString = numbersInLine.Split(' ');
+
+                for (int i = 0; i < numbersString.Length; i++)
+                {
+                    _numbers.Add(int.Parse(numbersString[i]));
+                }
+
+                return _numbers;
+            }
+
+            private int GetSum(List<int> numbers)
+            {
+                int sum = 0;
+                foreach (var number in numbers)
+                {
+                    sum += number;
+                }
+                return sum;
+            }
+
+            public void Show()
+            {
+                for (int i = 0; i < _matrix.GetLength(0); i++)
+                {
+                    for (int j = 0; j < _matrix.GetLength(1); j++)
+                    {
+                        Console.Write(_matrix[i, j]);
+                    }
+                    Console.WriteLine();
+                }
+                Console.WriteLine();
+            }
+
+            public void FilMatrix(char symbol)
+            {
+                for (int i = 0; i < _matrix.GetLength(0); i++)
+                {
+                    for (int j = 0; j < _matrix.GetLength(1); j++)
+                    {
+                        _matrix[i, j] = symbol;
+                    }
+                }
+            }
+
+            private void MoveUp(ref int startI, ref int startJ, int countSteps)
+            {
+                for (int i = 0; i < countSteps - 1; i++)
+                {
+                    _matrix[startI, startJ] = '/';
+                    --startI;
+                    ++startJ;
+                }
+                _matrix[startI, startJ] = '/';
+            }
+
+            private void MoveDown(ref int startI, ref int startJ, int countSteps)
+            {
+                for (int i = 0; i < countSteps - 1; i++)
+                {
+                    _matrix[startI, startJ] = '\\';
+                    ++startI;
+                    ++startJ;
+                }
+                _matrix[startI, startJ] = '\\';
+            }
+        }
+
         static void Main(string[] args)
         {
-            BookStore bookStore = new BookStore();
-            bookStore.AddAReader("Mahbub");
-            bookStore.AddAReader("David");
-            bookStore.AddAReader("Susan");
-            bookStore.AddABook("Object Oriented Programming", 1);
-            bookStore.AddABook("Object Oriented Programming", 2);
-            bookStore.AddABook("Object Oriented Programming", 3);
-            bookStore.AddABook("Programming Fundamentals", 1);
-            bookStore.AddABook("Programming Fundamentals", 2);
-            bookStore.AddABook("Let us C#", 1);
-            bookStore.AddABook("Programming is Fun", 1);
-            bookStore.AddABook("Life is Beautiful", 1);
-            bookStore.AddABook("Let's Talk About the Logic", 1);
-            bookStore.AddABook("How to ace a job interview", 1);
-            bookStore.ShowInfo();
+            Random rand = new Random();
+            int countNumers = 3;
+            string input = string.Empty;
+            List<int> numbers = new List<int>();
+            //while (input != "exit")
+            //{
+            //    //input = Console.ReadLine();
+            //    //countNumers = int.Parse(input);
+            while (Console.ReadKey().Key == ConsoleKey.Spacebar)
+            {
+                for (int i = 0; i < countNumers; i++)
+                {
+                    numbers.Add(rand.Next(1, countNumers));
+                }
+                //numbers = new List<int>() { 4, 1, 1, 4, 4 };
+                for (int i = 0; i < numbers.Count; i++)
+                {
+                    Console.Write(numbers[i]);
+                    Console.Write(',');
+                }
+                Console.WriteLine();
+                Mountain mountain = new Mountain(numbers);
+                mountain.Calculate();
+                mountain.Show();
+                numbers.Clear();
+            }
 
-            Console.WriteLine();
-            bookStore.RentABook("Mahbub", "Object Oriented Programming");
-            bookStore.RentABook("Mahbub", "How to ace a job interview");
-            bookStore.RentABook("Mahbub", "Life is Beautiful");
+            //  }
 
-            Console.WriteLine();
-            bookStore.RentABook("David", "Object Oriented Programming");
-            bookStore.RentABook("David", "Programming Fundamentals");
-
-            Console.WriteLine();
-            bookStore.RentABook("Susan", "Let's Talk About the Logic");
-            Console.WriteLine();
-            bookStore.ShowInfo();
-
-            Console.WriteLine();
-            bookStore.ReturnABook("Mahbub", "Object Oriented Programming", 1);
-            bookStore.ReturnABook("Mahbub", "How to ace a job interview", 1);
-            Console.WriteLine();
-
-            bookStore.RemoveABook("Let us C#", 1);
-            bookStore.RemoveABook("Let's Talk About the Logic", 1);
-            Console.WriteLine();
-
-            bookStore.RemoveAReader("Mahbub");
-            bookStore.ShowInfo();
             Console.ReadKey();
         }
     }
 }
-
-
-/*
- Once Executed, Your program will have the following output:
-
-The bookstore have following books available:
-Book Name: Object Oriented Programming, Serial: 1, Status: Available
-Book Name: Object Oriented Programming, Serial: 2, Status: Available
-Book Name: Object Oriented Programming, Serial: 3, Status: Available
-Book Name: Programming Fundamentals, Serial: 1, Status: Available
-Book Name: Programming Fundamentals, Serial: 2, Status: Available
-Book Name: Let us C#, Serial: 1, Status: Available
-Book Name: Programming is Fun, Serial: 1, Status: Available
-Book Name: Life is Beautiful, Serial: 1, Status: Available
-Book Name: Let's Talk About the Logic, Serial: 1, Status: Available
-Book Name: How to ace a job interview, Serial: 1, Status: Available
-
-Book: 'Object Oriented Programming' successfully rented.
-Book: 'How to ace a job interview' successfully rented.
-Sorry! Mahbub, You cannot rent more than two books!
-
-Book: 'Object Oriented Programming' successfully rented.
-Book: 'Programming Fundamentals' successfully rented.
-
-Book: 'Let's Talk About the Logic' successfully rented.
-
-Reader Mahbub rented following books:
-Book Name: Object Oriented Programming, Serial: 1, Status: Rented
-Book Name: How to ace a job interview, Serial: 1, Status: Rented
-Reader David rented following books:
-Book Name: Object Oriented Programming, Serial: 2, Status: Rented
-Book Name: Programming Fundamentals, Serial: 1, Status: Rented
-Reader Susan rented following books:
-Book Name: Let's Talk About the Logic, Serial: 1, Status: Rented
-The bookstore have following books available:
-Book Name: Object Oriented Programming, Serial: 3, Status: Available
-Book Name: Programming Fundamentals, Serial: 2, Status: Available
-Book Name: Let us C#, Serial: 1, Status: Available
-Book Name: Programming is Fun, Serial: 1, Status: Available
-Book Name: Life is Beautiful, Serial: 1, Status: Available
-
-Book: Object Oriented Programming successfully returned.
-Book: 'Life is Beautiful' successfully rented.
-
-Sorry! 'Let's Talk About the Logic' is already rented. Syatem cannot remove a rented book!
-
-Book: How to ace a job interview successfully returned.
-Book: Life is Beautiful successfully returned.
-
-Reader David rented following books:
-Book Name: Object Oriented Programming, Serial: 2, Status: Rented
-Book Name: Programming Fundamentals, Serial: 1, Status: Rented
-Reader Susan rented following books:
-Book Name: Let's Talk About the Logic, Serial: 1, Status: Rented
-The bookstore have following books available:
-Book Name: Object Oriented Programming, Serial: 1, Status: Available
-Book Name: Object Oriented Programming, Serial: 3, Status: Available
-Book Name: Programming Fundamentals, Serial: 2, Status: Available
-Book Name: Programming is Fun, Serial: 1, Status: Available
-Book Name: Life is Beautiful, Serial: 1, Status: Available
-Book Name: How to ace a job interview, Serial: 1, Status: Available
- */
