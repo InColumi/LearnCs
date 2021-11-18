@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LearnCs
 {
@@ -49,6 +45,8 @@ namespace LearnCs
             _month = month;
             _year = year;
         }
+
+        ~Date() { }
 
         public static Date GetDateFromString(string date, char splitter = '-')
         {
