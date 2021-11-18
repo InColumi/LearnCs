@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,204 +9,178 @@ namespace LearnCs
 {
     class Program
     {
-        class Mountain
+        static void Main(string[] args)
         {
-            private List<int> _numbers;
-            // private List<int> _numbersUp;
-            // private List<int> _numbersDown;
-            private char[,] _matrix;
-            private int _sizePerson;
-            private int _max;
-            private int _min;
-            public Mountain(List<int> numbers)
-            {
-                // _numbersUp = new List<int>();
-                // _numbersDown = new List<int>();
-                _numbers = numbers;
-                //SetNumberUpAndDown();
-                _sizePerson = 3;
-                int sumNumers = GetSum(_numbers);
-                _max = FindMax();
-                _min = FindMin();
-                _matrix = new char[_max + _min + _sizePerson, sumNumers + 3];
-            }
+            Date date1 = new Date("3", "6", "1996");
+            Date date2 = new Date("3", "6", "1996");
+ 
+            Console.WriteLine(date2 > date1);
+            Console.WriteLine(date2 <= date1);
 
-            private int FindMax()
+            Console.ReadKey();
+        }
+    }
+
+    class Date
+    {
+        private int _day;
+        private int _month;
+        private int _year;
+
+        public string Day => _day.ToString();
+        public string Month => _month.ToString();
+        public string Year => _year.ToString();
+
+        public Date()
+        {
+            _day = 0;
+            _month = 0;
+            _year = 0;
+        }
+
+        public Date(string day, string month, string year)
+        {
+            TryConvertDate(day, month, year);
+        }
+
+        public Date(int day, int month, int year)
+        {
+            _day = day;
+            _month = month;
+            _year = year;
+        }
+
+        public static Date GetDateFromString(string date, char splitter = '-')
+        {
+            string[] values = date.Split(splitter);
+            if (values.Length < 3 || values.Length > 3)
             {
-                int sum = 0;
-                int max = sum;
-                for (int i = 0; i < _numbers.Count; i++)
+                throw new Exception("Неверный формат даты!");
+            }
+            return new Date(values[0], values[1], values[2]);
+        }
+
+        public static Date operator +(Date date, int d)
+        {
+            Date newDate = date;
+            int maxDay = date.Maxday();
+            if (date._day + d > maxDay)
+            {
+                d -= maxDay - date._day;
+                if (++date._month > 12)
                 {
-                    sum += (i % 2 == 0) ? _numbers[i] : -_numbers[i];
-                    if (max < sum)
+                    newDate._month = 1;
+                    newDate._year++;
+                }
+                while (d / maxDay != 0)
+                {
+                    if (++date._month > 12)
                     {
-                        max = sum;
+                        newDate._month = 1;
+                        newDate._year++;
                     }
+                    d -= maxDay;
                 }
-                return max;
+                newDate._day = d;
             }
-
-            private int FindMin()
+            else
             {
-                int sum = 0;
-                int min = sum;
-                for (int i = 0; i < _numbers.Count; i++)
-                {
-                    sum += (i % 2 == 0) ? _numbers[i] : -_numbers[i];
-                    if (min > sum)
-                    {
-                        min = sum;
-                    }
-                }
-                return Math.Abs(min);
+                newDate._day += d;
             }
-            public void Calculate()
-            {
-                FilMatrix(' ');
-                bool isUp = true;
-                bool isSit = false;
-                int i = _matrix.GetLength(0) - _min - 1;
-                int j = 0;
-                int iStartPersone = 0;
-                int JStartPersone = 0;
-                for (int k = 0; k < _numbers.Count; k++)
-                {
-                    if (isUp)
-                    {
-                        MoveUp(ref i, ref j, _numbers[k]);
-                        isUp = false;
-                    }
-                    else
-                    {
-                        MoveDown(ref i, ref j, _numbers[k]);
-                        isUp = true;
-                    }
-                    ++j;
-                    if (i == _sizePerson && isSit == false)
-                    {
-                        ++j;
-                        iStartPersone = i - 1;
-                        JStartPersone = j - 1;
-                        isSit = true;
-                    }
+            return newDate;
+        }
 
-                }
-                AddPerson(iStartPersone, JStartPersone);
+        public static bool operator >(Date c1, Date c2)
+        {
+            return c1._year > c2._year || c1._month > c2._month || c1._day > c2._day;
+        }
+
+        public static bool operator <(Date c1, Date c2)
+        {
+            return c1._year < c2._year || c1._month < c2._month || c1._day < c2._day;
+        }
+
+        public static bool operator >=(Date c1, Date c2)
+        {
+            return c1._year >= c2._year || c1._month >= c2._month || c1._day >= c2._day;
+        }
+
+        public static bool operator <=(Date c1, Date c2)
+        {
+            return c1._year <= c2._year || c1._month <= c2._month || c1._day <= c2._day;
+        }
+        public static bool operator ==(Date c1, Date c2)
+        {
+            return c1._year == c2._year && c1._month == c2._month && c1._day == c2._day;
+        }
+
+        public static bool operator !=(Date c1, Date c2)
+        {
+            return c1._year != c2._year || c1._month != c2._month || c1._day != c2._day;
+        }
+
+
+        public static Date operator -(Date d1, Date d2)
+        {
+            if (d2._year > d1._year)
+            {
+                throw new Exception("Нельзя вычитать года... из меньшего большее");
             }
-
-            private void AddPerson(int i, int j)
+            else if (d2._month > d1._month)
             {
-                _matrix[i - 1, j] = 'o';
-                _matrix[i, j] = '|';
-                _matrix[i, j - 1] = '/';
-                _matrix[i, j + 1] = '\\';
-                _matrix[i + 1, j - 1] = '<';
-                _matrix[i + 1, j] = ' ';
-                _matrix[i + 1, j + 1] = '>';
+                throw new Exception("Нельзя вычитать месяца... из меньшего большее");
             }
-
-            private List<int> GetNumber()
+            else if (d2._day > d1._day)
             {
-                string numbersInLine = Console.ReadLine();
-                string[] numbersString = numbersInLine.Split(' ');
-
-                for (int i = 0; i < numbersString.Length; i++)
-                {
-                    _numbers.Add(int.Parse(numbersString[i]));
-                }
-
-                return _numbers;
+                throw new Exception("Нельзя вычитать дни... из меньшего большее");
             }
-
-            private int GetSum(List<int> numbers)
+            else
             {
-                int sum = 0;
-                foreach (var number in numbers)
-                {
-                    sum += number;
-                }
-                return sum;
-            }
-
-            public void Show()
-            {
-                for (int i = 0; i < _matrix.GetLength(0); i++)
-                {
-                    for (int j = 0; j < _matrix.GetLength(1); j++)
-                    {
-                        Console.Write(_matrix[i, j]);
-                    }
-                    Console.WriteLine();
-                }
-                Console.WriteLine();
-            }
-
-            public void FilMatrix(char symbol)
-            {
-                for (int i = 0; i < _matrix.GetLength(0); i++)
-                {
-                    for (int j = 0; j < _matrix.GetLength(1); j++)
-                    {
-                        _matrix[i, j] = symbol;
-                    }
-                }
-            }
-
-            private void MoveUp(ref int startI, ref int startJ, int countSteps)
-            {
-                for (int i = 0; i < countSteps - 1; i++)
-                {
-                    _matrix[startI, startJ] = '/';
-                    --startI;
-                    ++startJ;
-                }
-                _matrix[startI, startJ] = '/';
-            }
-
-            private void MoveDown(ref int startI, ref int startJ, int countSteps)
-            {
-                for (int i = 0; i < countSteps - 1; i++)
-                {
-                    _matrix[startI, startJ] = '\\';
-                    ++startI;
-                    ++startJ;
-                }
-                _matrix[startI, startJ] = '\\';
+                return new Date(d1._day - d2._day, d1._month - d2._month, d1._year - d2._year);
             }
         }
 
-        static void Main(string[] args)
+        public override string ToString()
         {
-            Random rand = new Random();
-            int countNumers = 3;
-            string input = string.Empty;
-            List<int> numbers = new List<int>();
-            //while (input != "exit")
-            //{
-            //    //input = Console.ReadLine();
-            //    //countNumers = int.Parse(input);
-            while (Console.ReadKey().Key == ConsoleKey.Spacebar)
+            return $"{Day} day(s): {Month} month(s): {Year} year(s)";
+        }
+
+        private void TryConvertDate(string d, string m, string y)
+        {
+            int day;
+            int mounth;
+            int year;
+            if (int.TryParse(d, out day) == false)
             {
-                for (int i = 0; i < countNumers; i++)
-                {
-                    numbers.Add(rand.Next(1, countNumers));
-                }
-                //numbers = new List<int>() { 4, 1, 1, 4, 4 };
-                for (int i = 0; i < numbers.Count; i++)
-                {
-                    Console.Write(numbers[i]);
-                    Console.Write(',');
-                }
-                Console.WriteLine();
-                Mountain mountain = new Mountain(numbers);
-                mountain.Calculate();
-                mountain.Show();
-                numbers.Clear();
+                throw new Exception("Неверный формат для дня!");
             }
 
-            //  }
+            if (int.TryParse(m, out mounth) == false)
+            {
+                throw new Exception("Неверный формат для месяца!");
+            }
 
-            Console.ReadKey();
+            if (int.TryParse(y, out year) == false)
+            {
+                throw new Exception("Неверный формат для года!");
+            }
+
+            _day = day;
+            _month = mounth;
+            _year = year;
+        }
+
+        private int Maxday()
+        {
+            List<int> days = new List<int> { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+            if (Leap()) days[1] = 29;
+            return days[_month - 1];
+
+        }
+
+        private bool Leap()
+        {
+            return ((_year % 4 == 0 && _year % 100 != 0) || _year % 400 != 0);
         }
     }
 }
